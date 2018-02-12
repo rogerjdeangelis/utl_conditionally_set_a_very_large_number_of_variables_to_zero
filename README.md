@@ -1,6 +1,8 @@
 # utl_conditionally_set_a_very_large_number_of_variables_to_zero
 Conditionally set a very large number of variables to zero. Keywords: sas sql join merge big data analytics macros oracle teradata mysql sas communities stackoverflow statistics artificial inteligence AI Python R Java Javascript WPS Matlab SPSS Scala Perl C C# Excel MS Access JSON graphics maps NLP natural language processing machine learning igraph DOSUBL DOW loop stackoverflow SAS community.
     Conditionally set a very large number of variables to zero
+    
+    see Paul Dorfmans comments on end of this message.
 
     github
     https://goo.gl/kFhMTC
@@ -130,4 +132,62 @@ Conditionally set a very large number of variables to zero. Keywords: sas sql jo
       if sex="M" then call pokelong (repeat (put (0,rb8.),200), addrlong(abcd1));
     run;quit;
     ');
+    
+        *                  _
+     _ __   __ _ _   _| |
+    | '_ \ / _` | | | | |
+    | |_) | (_| | |_| | |
+    | .__/ \__,_|\__,_|_|
+    |_|
+    ;
+
+    From Raul Dorfman
+
+    Roger,
+
+    Methinks I detect something familiar here ;). Wondering how long in the tooth the technique is,
+    I've done a quick search in the SAS-L archives and found this, dated 2000-04-26, almost 18 years ago:
+
+    https://listserv.uga.edu/cgi-bin/wa?A2=ind0004D&L=SAS-L&P=R9521&X=A394D75A1C66A9DBD4&Y=sashole%40bellsouth.net
+
+    Subsequently, Peter Crawford and I did a SUGI paper on this entire APP thing in Montreal.
+
+    Vis-a-vis the problem you've presented here, another interesting question to answer could be how to
+    *replace* a specific value with another value in all elements of an array. Say, if an array is numeric:
+
+    array a [10] (1 2 3 4 3 6 3 8 9 3) ;
+
+    how to replace all a[i]=3 with a[i]=5 without going thorough all array elements? The obvious answer is
+    below. Of course, it can be combined into a single expression. I opted not to do so for clarity.
+    Moreover, creating the _* variables beforehand at _N_=1 and retaining them yields better performance.
+
+    data _null_ ;
+      array a [10] (1 2 3 4 3 6 3 8 9 3) ;
+      put a[*] ;
+      _a = addrlong(a[1]) ;
+      _f = put (3, rb8.) ;
+      _t = put (5, rb8.) ;
+      _l = 8 * dim (a) ;
+      call pokelong (tranwrd (peekclong (_a, _l), _f, _t), _a) ;
+      put a[*] ;
+    run ;
+
+    Of course, with a character array, it's even simpler, for we don't have to the the RB8 conversions:
+
+    data _null_ ;
+      array a [10] $ 2 ('11' '22' '33' '44' '33' '66' '33' '88' '99' '33') ;
+      put a[*] ;
+      _a = addrlong(a[1]) ;
+      _f = "33" ;
+      _t = "55" ;
+      _l = 2 * dim (a) ;
+      call pokelong (tranwrd (peekclong (_a, _l), _f, _t), _a) ;
+      put a[*] ;
+    run ;
+
+    Best regards,
+
+    Paul Dorfman
+
+
 
